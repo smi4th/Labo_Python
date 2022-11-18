@@ -1,5 +1,5 @@
 owners = [378661428061667329]
-TOKEN = "NTAyNTMxMTY4OTc4MDc1NjYx.G3yAqU.82Yz2F10TR0H5nxxAg7aCSjwBVW7lsyk7B146U"
+TOKEN = "Vous cherchez quoi ici dit donc ??"
 
 admin_channel = 1042527057927749714
 
