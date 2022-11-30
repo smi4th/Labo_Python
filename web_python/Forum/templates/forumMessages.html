@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Forum</title>
+{% endblock %}
+
+{% block body %}
+    <a href="{{ url_for('home') }}">Home</a>
+    <br>
+
+    {% for message in messages %}
+        <div>
+            <p>[{{message.date}}] ({{message.author}}): {{ message.message }}</p>
+        </div>
+    {% endfor %}
+    <form method="POST" action="">
+        {{ createMessageInForum.hidden_tag() }}
+        {{ createMessageInForum.message }}
+        {{ createMessageInForum.submit }}
+    </form>
+
+{% endblock %}

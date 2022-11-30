@@ -1,0 +1,37 @@
+
+{% extends 'base.html' %}
+
+{% block head %}
+<title>User Sign In</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1 style="text-align: center">Home Page</h1>
+
+
+    {% if current_user.is_authenticated %}
+        <div class="Account">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <br>
+        </div>
+        <div class="Logout">
+            <a href="{{ url_for('logout') }}">Press here to logout</a>
+        </div>
+        <div class="forum">
+            <a href="{{ url_for('forum') }}">Forum</a>
+        </div>
+    {% else %}
+    <div class="Log In">
+        <a href="{{url_for('login')}}">Log In</a>
+    </div>
+    <div class="Sign In">
+        <a href="{{url_for('register')}}">Register</a>
+    </div>
+    {% endif %}
+    <div class="users">
+        <a href="{{url_for('users')}}">Users</a>
+    </div>
+
+</div>
+{% endblock %}

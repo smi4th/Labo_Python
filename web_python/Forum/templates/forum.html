@@ -1,0 +1,28 @@
+
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Forum</title>
+{% endblock %}
+
+{% block body %}
+    <a href="{{ url_for('home') }}">Home</a>
+    <br>
+    
+    <h1>Forum</h1>
+
+    <form method="POST" action="">
+        {{ createForum.hidden_tag() }}
+        {{ createForum.title }}
+        {{ createForum.description }}
+        {{ createForum.submit }}
+    </form>
+
+    <br>
+
+    {% for forum in forums %}
+        <a href="{{ url_for('forumMessages', forum_id=forum.id) }}">{{ forum.title }}</a>
+        <br>
+    {% endfor %}
+
+{% endblock %}
