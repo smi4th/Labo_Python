@@ -118,7 +118,7 @@ class FakeScreen:
 
                 screen.blit(self.surface, self.rect)
                 screen.blit(self.titleBarSurface, self.titleBarRect)
-                return "Dragging"
+                return "Dragging" 
         else:
             self.titleBarRect.height = 20
 
@@ -134,11 +134,8 @@ class FakeScreen:
             if child.selected:
                 child.modifyer(mousePos, mousePressed, screen, self.rect)
 
-class Button:
-    pass # I will add this later, after I've finished the InputText class
-
 class InputText:
-    def __init__(self, rect, surface, text, font, colour, backgroundColour, borderColour, borderThickness, borderRadius, relativePos):
+    def __init__(self, rect, surface, text, font, colour, backgroundColour, borderColour, borderThickness, borderRadius, relativePos, relativeByTopLeft = True):
         self.rect = rect # The rect of the input text
         self.surface = surface # The surface of the input text
         self.text = text # The text of the input text
@@ -149,6 +146,7 @@ class InputText:
         self.borderThickness = borderThickness # The border thickness of the input text
         self.borderRadius = borderRadius # The border radius of the input text
         self.relativePos = relativePos
+        self.relativeByTopLeft = relativeByTopLeft
 
         self.textSurface = pygame.font.SysFont(self.font, 12).render(self.text, True, self.colour) # The text surface of the input text
         self.textRect = self.textSurface.get_rect() # The text rect of the input text
@@ -220,7 +218,7 @@ class InputText:
         pygame.draw.rect(
             self.surface, # The surface
             self.borderColour, # The border colour
-            (0, 0, self.rect.width, self.rect.height), # The border rect
+            self.rect, # The border rect
             self.borderThickness, # The border thickness
             self.borderRadius # The border radius
             ) # The border is drawn
@@ -231,10 +229,13 @@ class InputText:
         screen.blit(self.surface, self.rect) # The surface is blitted to the screen        
 
     def moveRect(self, parentRect): # To move the rect of the input text
-        pos = pygame.Vector2((parentRect.x + self.relativePos[0] ,parentRect.y + self.relativePos[1])) # The position of the input text
+        if self.relativeByTopLeft:
+            pos = pygame.Vector2((parentRect.x + self.relativePos[0] ,parentRect.y + self.relativePos[1]))
+        else:
+            pos = pygame.Vector2((parentRect.x + parentRect.width - self.rect.width - self.relativePos[0], parentRect.y + parentRect.height - self.rect.height - self.relativePos[1]))
         self.rect.x, self.rect.y = pos
 
-    def draw(self, screen, windowRect):
+    def draw(self, screen):
         
         self.surface.fill(self.backgroundColour) # The surface is filled with the background colour
         pygame.draw.rect(
@@ -245,9 +246,145 @@ class InputText:
             self.borderRadius # The border radius
             ) # The border is drawn
 
+        self.textRect.y += 5
         self.surface.blit(self.textSurface, self.textRect) # The text surface is blitted to the surface
+        self.textRect.y -= 5
 
+        self.cursorRect.y += 5
         self.surface.blit(self.cursorSurface, self.cursorRect) # The cursor surface is blitted to the surface
+        self.cursorRect.y -= 5
+
+        screen.blit(self.surface, self.rect)
+
+
+class Button:
+    def __init__(self, rect, text, color, textColor, font, surface, RelativePos, relativeByTopLeft = True,
+                backgroundColour = WHITE, borderColour = BLACK, borderThickness = 1, borderRadius = 0):
+        self.rect = rect
+        self.relativePos = RelativePos
+        self.relativeByTopLeft = relativeByTopLeft
+        
+        self.font = font
+
+        self.color = color
+        self.backgroundColour = backgroundColour # The background colour of the input text
+        self.borderColour = borderColour # The border colour of the input text
+        self.borderThickness = borderThickness # The border thickness of the input text
+        self.borderRadius = borderRadius # The border radius of the input text
+        
+        self.surface = surface
+        self.surface.fill(self.backgroundColour)
+
+        self.text = text
+        self.textColor = textColor
+        self.textSurface = pygame.font.SysFont(self.font, 12).render(self.text, True, self.textColor)
+        self.textRect = self.textSurface.get_rect()
+
+        self.selected = False
+        self.clicked = False
+
+    def selectedChild(self):
+        self.selected = True
+    
+    def modifyer(self, mousePos, mousePressed, screen, parentRect):
+        if self.rect.collidepoint(mousePos):
+            if mousePressed[0]:
+                self.clicked = True
+            else:
+                if self.clicked:
+                    print('clicked')
+                    self.clicked = False
+        else:
+            self.clicked = False
+
+    def moveRect(self, parentRect):
+        if self.relativeByTopLeft:
+            pos = pygame.Vector2((parentRect.x + self.relativePos[0] ,parentRect.y + self.relativePos[1]))
+        else:
+            pos = pygame.Vector2((parentRect.x + parentRect.width - self.rect.width - self.relativePos[0], parentRect.y + parentRect.height - self.rect.height - self.relativePos[1]))
+        self.rect.x, self.rect.y = pos
+
+    def draw(self, screen):
+    
+        self.surface.fill(self.backgroundColour) # The surface is filled with the background colour
+
+        pygame.draw.rect(
+            self.surface, # The surface
+            self.borderColour, # The border colour
+            (0, 0, self.rect.width, self.rect.height), # The border rect
+            self.borderThickness, # The border thickness
+            self.borderRadius # The border radius
+            ) # The border is drawn
+        
+        self.surface.blit(self.textSurface, ((self.surface.get_width()/2) - self.textSurface.get_width()/2, (self.surface.get_height()/2) - self.textSurface.get_height()/2)) # The text surface is blitted to the surface
+
+        screen.blit(self.surface, self.rect)
+        
+class CheckBox:
+    def __init__(self, rect, text, color, size, textColor, font, surface, RelativePos, relativeByTopLeft = True,
+                backgroundColour = WHITE, borderColour = BLACK, borderThickness = 1, borderRadius = 0):
+        self.rect = rect
+        self.relativePos = RelativePos
+        self.relativeByTopLeft = relativeByTopLeft
+        
+        self.font = font
+
+        self.color = color
+        self.backgroundColour = backgroundColour # The background colour of the input text
+        self.borderColour = borderColour # The border colour of the input text
+        self.borderThickness = borderThickness # The border thickness of the input text
+        self.borderRadius = borderRadius # The border radius of the input text
+
+        self.surface = surface
+        self.surface.fill(self.backgroundColour)
+
+        self.text = text
+        self.textColor = textColor
+        self.textSurface = pygame.font.SysFont(self.font, 12).render(self.text, True, self.textColor)
+        self.textRect = self.textSurface.get_rect()
+
+        self.box = pygame.Rect((self.rect.x + self.rect.width + 5, self.rect.y), size)
+        self.boxSurface = pygame.Surface(size)
+        self.boxSurface.fill(self.backgroundColour)
+        self.boxRect = self.boxSurface.get_rect()
+
+        self.selected = False
+        self.clicked = False
+
+    def selectedChild(self):
+        self.selected = True
+
+    def modifyer(self, mousePos, mousePressed, screen, parentRect):
+        if self.boxRect.collidepoint(mousePos):
+            if mousePressed[0]:
+                self.clicked = True
+            else:
+                if self.clicked:
+                    print('clicked')
+                    self.clicked = False
+        else:
+            self.clicked = False
+    
+    def moveRect(self, parentRect):
+        if self.relativeByTopLeft:
+            pos = pygame.Vector2((parentRect.x + self.relativePos[0] ,parentRect.y + self.relativePos[1]))
+        else:
+            pos = pygame.Vector2((parentRect.x + parentRect.width - self.rect.width - self.relativePos[0], parentRect.y + parentRect.height - self.rect.height - self.relativePos[1]))
+        self.rect.x, self.rect.y = pos
+
+    def draw(self, screen):
+        self.surface.fill(self.backgroundColour)
+        self.boxSurface.fill(self.backgroundColour)
+
+        pygame.draw.rect(
+            self.boxSurface, # The surface
+            self.borderColour, # The border colour
+            (0, 0, self.box.width, self.box.height), # The border rect
+            self.borderThickness, # The border thickness
+            self.borderRadius # The border radius
+            ) # The border is drawn
+
+        self.surface.blit(self.textSurface, ((self.surface.get_width()/2) - self.textSurface.get_width()/2, (self.surface.get_height()/2) - self.textSurface.get_height()/2)) # The text surface is blitted to the surface
 
         screen.blit(self.surface, self.rect)
 
@@ -256,17 +393,48 @@ def create_fake_screen(title, size, pos):
     return fake_screen
 
 def new_project_pop_up():
-
+    
     project_pop_up = create_fake_screen("New Project", (500, 500), (100, 100))
     project_pop_up.childrens.append(InputText(
-        pygame.Rect((120, 120),
-        (200, 20)),
+        pygame.Rect((120, 130),(200, 20)),
         pygame.Surface((200, 20)),
         "Hello",
         FONT,
         BLACK, WHITE, BLACK, 1, 0,
-        (20,20) # The position of the input text relative to the fake screen
+        (20,30) # The position of the input text relative to the fake screen
         ))
+    project_pop_up.childrens.append(Button(
+        rect = pygame.Rect((
+            project_pop_up.rect.x + project_pop_up.rect.width - 110,
+            project_pop_up.rect.y + project_pop_up.rect.height - 30)
+            , (100, 20)
+            ),
+        text = "Create",
+        color = BLACK,
+        textColor = BLACK,
+        font = FONT,
+        surface = pygame.Surface((100, 20)),
+        RelativePos = [
+            10,
+            10
+            ],
+        relativeByTopLeft = False,
+        backgroundColour = LIGHT_GREY, borderColour = BLACK, borderThickness = 1, borderRadius = 0)
+    )
+    project_pop_up.childrens.append(CheckBox(
+        rect = pygame.Rect((120, 160),(20, 20)),
+        text = "Check Box",
+        color = BLACK,
+        size = (20, 20),
+        textColor = BLACK,
+        font = FONT,
+        surface = pygame.Surface((20, 20)),
+        RelativePos = [
+            20,
+            30
+            ],
+        backgroundColour = LIGHT_GREY, borderColour = BLACK, borderThickness = 1, borderRadius = 0)
+    )
 
     return project_pop_up
 
@@ -275,7 +443,6 @@ def blit_project_pop_up(screen, NEW_PROJECT_POP_UP):
     screen.blit(NEW_PROJECT_POP_UP.titleBarSurface, NEW_PROJECT_POP_UP.titleBarRect)
 
     for child in NEW_PROJECT_POP_UP.childrens:
-        if isinstance(child, InputText):
-            child.draw(screen, NEW_PROJECT_POP_UP.rect)
+        child.draw(screen)
 
     pygame.display.flip()
